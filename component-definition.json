@@ -661,6 +661,37 @@
           }
         }
       ]
+    },
+    {
+      "title": "Custom Form Components",
+      "id": "custom-components",
+      "components": [
+        {
+          "title": "Custom Radio",
+          "id": "custom-radio",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/fd/components/form/radiobutton/v1/radiobutton",
+                "template": {
+                  "jcr:title": "Custom Group",
+                  "fieldType": "radio-group",
+                  "fd:viewType": "custom-radio",
+                  "enum": [
+                    "0",
+                    "1"
+                  ],
+                  "enumNames": [
+                    "Item 1",
+                    "Item 2"
+                  ],
+                  "orientation": "horizontal"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }

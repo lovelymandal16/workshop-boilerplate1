@@ -200,6 +200,12 @@
         "tnc",
         "wizard"
       ]
+    },
+    {
+      "id": "custom-components",
+      "components": [
+        "custom-components"
+      ]
     }
   ]
 }
