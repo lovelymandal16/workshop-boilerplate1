@@ -17,7 +17,7 @@ export function getCustomComponents() {
 
 /**
  * Higher-Order Function that creates a component loader for a specific folder path
- * @param {string} folderPath - The folder path relative to /blocks/form/ (e.g., 'components', 'custom-components')
+ * @param folderPath - The folder path relative to /blocks/form/ (e.g., 'custom-components')
  * @returns {Function} A component loader function
  */
 function createComponentLoader(folderPath) {
@@ -26,7 +26,6 @@ function createComponentLoader(folderPath) {
     if (status !== 'loading' && status !== 'loaded') {
       element.dataset.componentStatus = 'loading';
       const { blockName } = element.dataset;
-      
       try {
         loadCSS(`${window.hlx.codeBasePath}/blocks/form/${folderPath}/${componentName}/${componentName}.css`);
         const decorationComplete = new Promise((resolve) => {
