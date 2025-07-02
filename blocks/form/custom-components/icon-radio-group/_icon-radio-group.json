@@ -1,16 +1,16 @@
 {
     "definitions": [
         {
-            "title": "Custom Radio",
-            "id": "custom-radio",
+            "title": "Icon Radio Group",
+            "id": "icon-radio-group",
             "plugins": {
                 "xwalk": {
                     "page": {
                         "resourceType": "core/fd/components/form/radiobutton/v1/radiobutton",
                         "template": {
-                            "jcr:title": "Custom Group",
+                            "jcr:title": "Icon Radio Group",
                             "fieldType": "radio-group",
-                            "fd:viewType": "custom-radio",
+                            "fd:viewType": "icon-radio-group",
                             "enum": [
                                 "0",
                                 "1"
@@ -28,7 +28,7 @@
     ],
     "models": [
         {
-            "id": "custom-radio",
+            "id": "radio-group",
             "fields": [
                 {
                     "component": "container",
@@ -37,7 +37,7 @@
                     "collapsible": false,
                     "fields": [
                         {
-                            "...": "../../models/form-common/_basic-select-fields.json#/fields"
+                            "...": "../form-common/_basic-select-fields.json#/fields"
                         },
                         {
                             "component": "select",
@@ -95,14 +95,14 @@
                     ]
                 },
                 {
-                    "...": "../../models/form-common/_help-container.json"
+                    "...": "../form-common/_help-container.json"
                 },
                 {
                     "component": "container",
                     "name": "validation",
                     "label": "Validation",
                     "collapsible": true,
-                    "...": "../../models/form-common/_basic-validation-fields.json"
+                    "...": "../form-common/_basic-validation-fields.json"
                 }
             ]
         }
