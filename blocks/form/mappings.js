@@ -1,6 +1,6 @@
 import { loadCSS } from '../../scripts/aem.js';
 
-let customComponents = ['icon-radio-group'];
+let customComponents = ['range'];
 const OOTBComponentDecorators = ['file-input', 'wizard', 'modal', 'tnc', 'toggleable-link', 'rating', 'datetime', 'list', 'location', 'accordion', 'password'];
 
 export function setCustomComponents(components) {

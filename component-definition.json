@@ -667,25 +667,18 @@
       "id": "custom-components",
       "components": [
         {
-          "title": "Icon Radio Group",
-          "id": "icon-radio-group",
+          "title": "Range",
+          "id": "range",
           "plugins": {
             "xwalk": {
               "page": {
-                "resourceType": "core/fd/components/form/radiobutton/v1/radiobutton",
+                "resourceType": "core/fd/components/form/numberinput/v1/numberinput",
                 "template": {
-                  "jcr:title": "Icon Radio Group",
-                  "fieldType": "radio-group",
-                  "fd:viewType": "icon-radio-group",
-                  "enum": [
-                    "0",
-                    "1"
-                  ],
-                  "enumNames": [
-                    "Item 1",
-                    "Item 2"
-                  ],
-                  "orientation": "horizontal"
+                  "jcr:title": "Range",
+                  "fieldType": "number-input",
+                  "fd:viewType": "range",
+                  "enabled": true,
+                  "visible": true
                 }
               }
             }
