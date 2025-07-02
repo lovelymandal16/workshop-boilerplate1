@@ -198,12 +198,7 @@
         "telephone-input",
         "text-input",
         "tnc",
-        "wizard"
-      ]
-    },
-    {
-      "id": "custom-components",
-      "components": [
+        "wizard",
         "icon-radio-group"
       ]
     }
