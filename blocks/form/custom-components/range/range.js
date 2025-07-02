@@ -18,7 +18,6 @@ function updateBubble(input, element) {
   bubble.style.left = `calc(${left})`;
   element.setAttribute('style', style);
 }
- 
 export default async function decorate(fieldDiv, fieldJson) {
   console.log('RANGE DIV: ', fieldDiv);
   console.log('RANGE JSON: fieldJson', fieldJson);
