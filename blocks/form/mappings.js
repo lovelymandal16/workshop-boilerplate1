@@ -1,6 +1,6 @@
 import { loadCSS } from '../../scripts/aem.js';
 
-let customComponents = ['range'];
+let customComponents = ['range', 'my-custom-checkbox', 'fd'];
 const OOTBComponentDecorators = ['file-input', 'wizard', 'modal', 'tnc', 'toggleable-link', 'rating', 'datetime', 'list', 'location', 'accordion', 'password'];
 
 export function setCustomComponents(components) {
