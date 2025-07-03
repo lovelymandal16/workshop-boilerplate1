@@ -28,18 +28,7 @@
             "name": "basic",
             "label": "Basic",
             "collapsible": false,
-            "fields": [
-                {
-                    "...": "../../models/form-common/_basic-input-fields.json#/fields"
-                },
-                {
-                    "component": "number",
-                    "name": "stepValue",
-                    "label": "Step Value",
-                    "valueType": "number",
-                    "description": "Step value for the range"
-                }
-            ]
+            "...": "../../models/form-common/_basic-input-fields.json"
           },
           {
             "...": "../../models/form-common/_help-container.json"
@@ -50,6 +39,21 @@
             "label": "Validation",
             "collapsible": true,
             "...": "../../models/form-common/_number-validation-fields.json"
+          },
+          {
+            "component": "container",
+            "name": "custom",
+            "label": "Custom Properties",
+            "collapsible": true,
+            "fields": [
+              {
+                "component": "number",
+                "name": "stepValue",
+                "label": "Step Value",
+                "valueType": "number",
+                "description": "Step value for the range"
+              }
+            ]
           }
         ]
       }
