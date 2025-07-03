@@ -21,7 +21,7 @@
     "update:formatters": "rollup -c rollup/af-formatters.rollup.config.js",
     "update:functions": "cp node_modules/@aemforms/af-custom-functions/src/index.js blocks/form/rules/functions.js",
     "update": "npm run update:core && npm run update:formula && npm run update:formatters",
-    "custom-component": "node scripts/scaffold-custom-component.js",
+    "custom-component": "node scripts/forms-scaffolder.js",
     "postinstall": "npx playwright install chromium"
   },
   "c8": {

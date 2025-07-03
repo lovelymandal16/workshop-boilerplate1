@@ -1,5 +1,5 @@
 import {
-  readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync,
+  readFileSync, writeFileSync, mkdirSync, existsSync,
 } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -353,7 +353,7 @@ async function scaffoldComponent() {
         name: `${comp.name} - ${comp.name.toLowerCase()} based component`,
         value: comp,
       })),
-      result(name) {
+      result() {
         return this.focused.value;
       },
     });
