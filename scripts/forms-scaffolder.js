@@ -350,7 +350,7 @@ async function scaffoldComponent() {
       hint: 'Use arrow keys to navigate through the list, Enter to select',
       limit: 8,
       choices: baseComponents.map((comp) => ({
-        name: `${comp.name} - ${comp.name.toLowerCase()} based component`,
+        name: `${comp.name}`,
         value: comp,
       })),
       result() {
