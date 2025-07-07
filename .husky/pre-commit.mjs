@@ -13,6 +13,7 @@ const modifiedFiles = changeset.split('\n').filter(Boolean);
 
 // Run linting on all staged files
 try {
+  console.log('🔄 Running linting...');
   await run('npm run lint');
   console.log('✅ Linting passed - no issues found');
 } catch (error) {

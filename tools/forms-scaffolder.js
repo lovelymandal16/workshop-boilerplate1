@@ -161,6 +161,12 @@ function createComponentFiles(componentName, baseComponent, targetDir) {
  * Custom ${componentName} component
  * Based on: ${baseComponent.name}
  */
+
+/**
+ * Decorates a custom form field component
+ * @param {HTMLElement} fieldDiv - The DOM element containing the field wrapper. Refer to the documentation for its structure for each component.
+ * @param {Object} fieldJson - The form json object for the component.
+ */
 export default async function decorate(fieldDiv, fieldJson) {
   console.log('${emojis.gear} Decorating ${componentName} component:', fieldDiv, fieldJson);
   
