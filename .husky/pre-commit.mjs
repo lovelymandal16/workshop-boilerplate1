@@ -18,3 +18,17 @@ if (modifledPartials.length > 0) {
   console.log(output);
   await run('git add component-models.json component-definition.json component-filters.json');
 }
+
+// check if there are any component directory changes staged
+const componentChanges = modifiedFiles.filter((file) => 
+  file.match(/^blocks\/form\/(custom-components|components)\//) ||
+  file === 'blocks/form/mappings.js'
+);
+if (componentChanges.length > 0) {
+  console.log('🔄 Component changes detected, updating mappings...');
+  const output = await run('npm run update:mappings --silent');
+  console.log(output);
+  await run('git add blocks/form/mappings.js');
+} else {
+  console.log('✅ No component mapping changes needed');
+}

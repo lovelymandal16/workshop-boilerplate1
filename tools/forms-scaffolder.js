@@ -4,6 +4,7 @@ import {
 import path from 'path';
 import { fileURLToPath } from 'url';
 import enquirer from 'enquirer';
+import { updateMappings } from './update-mappings.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -112,32 +113,36 @@ function readCustomComponents() {
   }
 }
 
-// Component name validation
+// Check if component directory already exists
+function checkComponentExists(componentName) {
+  const targetDir = path.join(__dirname, '../blocks/form/custom-components', componentName);
+  return existsSync(targetDir);
+}
+
+// Component name validation (simplified)
 function validateComponentName(name) {
   if (!name || typeof name !== 'string') {
     return 'Component name is required';
   }
 
-  if (name !== name.toLowerCase()) {
-    return 'Component name must be lowercase';
+  // Convert and clean the name first
+  const cleanName = name.toLowerCase()
+    .replace(/\s+/g, '-')  // Replace spaces with hyphens
+    .replace(/[^a-z0-9-_]/g, '') // Remove invalid characters (allow underscores)
+    .replace(/-+/g, '-')   // Replace multiple hyphens with single hyphen
+    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+
+  if (!cleanName) {
+    return 'Component name must contain at least one letter or number';
   }
 
-  if (!/^[a-z][a-z0-9-]*$/.test(name)) {
-    return 'Component name must start with a letter and can only contain lowercase letters, numbers, and hyphens';
-  }
-
-  if (name.startsWith('-') || name.endsWith('-')) {
-    return 'Component name cannot start or end with a hyphen';
-  }
-
-  if (name.includes('__') || name.includes('_')) {
-    return 'Component name cannot contain underscores';
+  if (!/^[a-z]/.test(cleanName)) {
+    return 'Component name must start with a letter';
   }
 
   // Check if component already exists
-  const existingComponents = readCustomComponents();
-  if (existingComponents.includes(name)) {
-    return `Component '${name}' already exists. Please choose a different name.`;
+  if (checkComponentExists(cleanName)) {
+    return `Component '${cleanName}' already exists. Please choose a different name.`;
   }
 
   return true;
@@ -168,10 +173,7 @@ export default async function decorate(fieldDiv, fieldJson) {
 
   // Create CSS file (empty)
   const cssContent = `/* ${componentName.charAt(0).toUpperCase() + componentName.slice(1)} component styles */
-
-.${componentName} {
   /* Add your custom styles here */
-}
 `;
 
   // Create JSON file based on base component
@@ -280,44 +282,6 @@ export default async function decorate(fieldDiv, fieldJson) {
   return files;
 }
 
-// Update mappings.js to include the new custom component
-function updateMappingsFile(componentName) {
-  const mappingsPath = path.join(__dirname, '../blocks/form/mappings.js');
-
-  try {
-    // Read the current mappings.js file
-    const mappingsContent = readFileSync(mappingsPath, 'utf-8');
-
-    // Find the customComponents array and add the new component
-    const customComponentsRegex = /let customComponents = \[([^\]]*)\];/;
-    const match = mappingsContent.match(customComponentsRegex);
-
-    if (match) {
-      // Get existing components using the reusable function
-      const existingComponents = readCustomComponents();
-
-      // Add the new component to the array
-      existingComponents.push(componentName);
-
-      // Create the new array string
-      const newArrayContent = existingComponents.map((comp) => `'${comp}'`).join(', ');
-      const newLine = `let customComponents = [${newArrayContent}];`;
-
-      // Replace the line in the file content
-      const updatedContent = mappingsContent.replace(customComponentsRegex, newLine);
-
-      // Write the updated content back to the file
-      writeFileSync(mappingsPath, updatedContent);
-
-      logSuccess(`Updated mappings.js to include '${componentName}' in customComponents array`);
-    } else {
-      logWarning('Could not find customComponents array in mappings.js');
-    }
-  } catch (error) {
-    logWarning(`Could not update mappings.js: ${error.message}`);
-  }
-}
-
 // Main scaffolding function
 async function scaffoldComponent() {
   console.clear();
@@ -337,7 +301,13 @@ async function scaffoldComponent() {
       message: `${emojis.gear} What's the name of your custom component?`,
       hint: 'lowercase, no spaces (e.g., cancel-button, icon-checkbox)',
       validate: validateComponentName,
-      format: (value) => value.trim(),
+      format: (value) => {
+        // Auto-convert input to proper format
+        return value.trim()
+          .toLowerCase()
+          .replace(/\s+/g, '-')      // Replace spaces with hyphens
+          .replace(/[^a-z0-9-_]/g, '') // Remove invalid characters (allow underscores)
+      },
     });
 
     console.log(''); // Add spacing
@@ -383,7 +353,7 @@ async function scaffoldComponent() {
     // Create directory structure
     const targetDir = path.join(__dirname, '../blocks/form/custom-components', componentName);
 
-    if (existsSync(targetDir)) {
+    if (checkComponentExists(componentName)) {
       logError(`\nComponent '${componentName}' already exists!`);
       process.exit(1);
     }
@@ -398,7 +368,7 @@ async function scaffoldComponent() {
 
     // Update mappings.js to include the new custom component
     log(`${emojis.gear} Updating mappings.js...`, colors.dim);
-    updateMappingsFile(componentName);
+    updateMappings();
 
     // Success message
     logSuccess(`Successfully created custom component '${componentName}'!`);
