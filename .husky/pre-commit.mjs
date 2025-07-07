@@ -1,4 +1,5 @@
 import { exec } from "node:child_process";
+import { createSpinner } from "../tools/utils.js";
 
 const run = (cmd) => new Promise((resolve, reject) => exec(
   cmd,
@@ -8,28 +9,9 @@ const run = (cmd) => new Promise((resolve, reject) => exec(
   }
 ));
 
-// Simple spinner utility
-const createSpinner = (message) => {
-  const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
-  let frameIndex = 0;
-  
-  const spinner = setInterval(() => {
-    process.stdout.write(`\r${frames[frameIndex]} ${message}`);
-    frameIndex = (frameIndex + 1) % frames.length;
-  }, 100);
-  
-  return {
-    stop: (finalMessage) => {
-      clearInterval(spinner);
-      process.stdout.write(`\r${finalMessage}\n`);
-    }
-  };
-};
-
 const changeset = await run('git diff --cached --name-only --diff-filter=ACMR');
 const modifiedFiles = changeset.split('\n').filter(Boolean);
 
-// Run linting on all staged files with spinner
 const lintSpinner = createSpinner('Running linting...');
 try {
   await run('npm run lint');

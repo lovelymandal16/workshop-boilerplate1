@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import enquirer from 'enquirer';
 import { updateMappings } from './update-mappings.js';
+import { logger, createSpinner } from './utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -53,15 +54,15 @@ function logTitle(text) {
 }
 
 function logSuccess(text) {
-  console.log(colorize(`${emojis.check} ${text}`, colors.green));
+  logger.success(text);
 }
 
 function logError(text) {
-  console.log(colorize(`${emojis.error} ${text}`, colors.red));
+  logger.error(text);
 }
 
 function logWarning(text) {
-  console.log(colorize(`${emojis.warning} ${text}`, colors.yellow));
+  logger.warning(text);
 }
 
 // Get base components from defined array
@@ -90,27 +91,6 @@ function getBaseComponents() {
     value: name.toLowerCase().replace(/\s+/g, '-'),
     filename: `_${name.toLowerCase().replace(/\s+/g, '-')}.json`,
   }));
-}
-
-// Read customComponents array from mappings.js
-function readCustomComponents() {
-  const mappingsPath = path.join(__dirname, '../blocks/form/mappings.js');
-
-  try {
-    const mappingsContent = readFileSync(mappingsPath, 'utf-8');
-    const customComponentsRegex = /let customComponents = \[([^\]]*)\];/;
-    const match = mappingsContent.match(customComponentsRegex);
-
-    if (match) {
-      return match[1]
-        .split(',')
-        .map((comp) => comp.trim().replace(/['"]/g, ''))
-        .filter((comp) => comp.length > 0);
-    }
-    return [];
-  } catch (error) {
-    return [];
-  }
 }
 
 // Check if component directory already exists
@@ -366,7 +346,7 @@ async function scaffoldComponent() {
       type: 'input',
       name: 'componentName',
       message: `${emojis.gear} What's the name of your custom component?`,
-      hint: 'lowercase, no spaces (e.g., cancel-button, icon-checkbox)',
+      hint: 'lowercase, no spaces (e.g., icon-radio)',
       validate: validateComponentName,
       format: (value) => {
         // Auto-convert input to proper format
@@ -414,14 +394,15 @@ async function scaffoldComponent() {
       return;
     }
 
-    // Show loading
-    process.stdout.write(colorize(`\n${emojis.gear} Creating component structure...`, colors.yellow));
+    // Create component files with spinner
+    const creationSpinner = createSpinner('Creating component structure...');
 
     // Create directory structure
     const targetDir = path.join(__dirname, '../blocks/form/custom-components', componentName);
 
     if (checkComponentExists(componentName)) {
-      logError(`\nComponent '${componentName}' already exists!`);
+      creationSpinner.stop('❌ Component creation failed');
+      logError(`Component '${componentName}' already exists!`);
       process.exit(1);
     }
 
@@ -429,17 +410,17 @@ async function scaffoldComponent() {
 
     // Create files
     const files = createComponentFiles(componentName, baseComponent, targetDir);
-
-    // Clear loading message
-    process.stdout.write(`\r${' '.repeat(50)}\r`);
+    creationSpinner.stop('✅ Component files created successfully');
 
     // Update mappings.js to include the new custom component
-    log(`${emojis.gear} Updating mappings.js...`, colors.dim);
+    const mappingSpinner = createSpinner('Updating mappings.js...');
     updateMappings();
+    mappingSpinner.stop('✅ Mappings updated successfully');
 
     // Update _form.json to include the new component in filters
-    log(`${emojis.gear} Updating _form.json...`, colors.dim);
+    const formSpinner = createSpinner('Updating _form.json...');
     updateFormJson(componentName);
+    formSpinner.stop('✅ Form configuration updated successfully');
 
     // Success message
     logSuccess(`Successfully created custom component '${componentName}'!`);
