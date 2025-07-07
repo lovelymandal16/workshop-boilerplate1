@@ -282,6 +282,43 @@ export default async function decorate(fieldDiv, fieldJson) {
   return files;
 }
 
+// Update _form.json to include the new component in filters
+function updateFormJson(componentName) {
+  const formJsonPath = path.join(__dirname, '../blocks/form/_form.json');
+  
+  try {
+    // Read current _form.json
+    const formJsonContent = readFileSync(formJsonPath, 'utf-8');
+    const formJson = JSON.parse(formJsonContent);
+    
+    // Find the filters array with id "form"
+    const formFilter = formJson.filters.find(filter => filter.id === 'form');
+    
+    if (formFilter && formFilter.components) {
+      // Check if component already exists
+      if (!formFilter.components.includes(componentName)) {
+        // Add component and sort alphabetically
+        formFilter.components.push(componentName);
+        
+        // Write back to file
+        writeFileSync(formJsonPath, JSON.stringify(formJson, null, 2));
+        
+        logSuccess(`Updated _form.json to include '${componentName}' in form filters`);
+        return true;
+      } else {
+        log(`Component '${componentName}' already exists in _form.json filters`, colors.dim);
+        return true;
+      }
+    } else {
+      logWarning('Could not find form filter in _form.json');
+      return false;
+    }
+  } catch (error) {
+    logWarning(`Could not update _form.json: ${error.message}`);
+    return false;
+  }
+}
+
 // Main scaffolding function
 async function scaffoldComponent() {
   console.clear();
@@ -369,6 +406,10 @@ async function scaffoldComponent() {
     // Update mappings.js to include the new custom component
     log(`${emojis.gear} Updating mappings.js...`, colors.dim);
     updateMappings();
+
+    // Update _form.json to include the new component in filters
+    log(`${emojis.gear} Updating _form.json...`, colors.dim);
+    updateFormJson(componentName);
 
     // Success message
     logSuccess(`Successfully created custom component '${componentName}'!`);

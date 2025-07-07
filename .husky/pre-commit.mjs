@@ -40,6 +40,4 @@ if (componentChanges.length > 0) {
   const output = await run('npm run update:mappings --silent');
   console.log(output);
   await run('git add blocks/form/mappings.js');
-} else {
-  console.log('✅ No component mapping changes needed');
 }
