@@ -219,7 +219,7 @@ export default async function decorate(fieldDiv, fieldJson) {
               ...def.plugins.xwalk.page,
               template: {
                 ...def.plugins.xwalk.page.template,
-                'jcr:title': componentName.charAt(0).toUpperCase() + componentName.slice(1),
+                'jcr:title': componentName.charAt(0).toUpperCase() + componentName.slice(1).replace(/-/g, ' '),
                 'fd:viewType': componentName,
               },
             },
@@ -287,21 +287,45 @@ function updateFormJson(componentName) {
   const formJsonPath = path.join(__dirname, '../blocks/form/_form.json');
   
   try {
-    // Read current _form.json
-    const formJsonContent = readFileSync(formJsonPath, 'utf-8');
-    const formJson = JSON.parse(formJsonContent);
+    // Read current _form.json as text
+    let formJsonContent = readFileSync(formJsonPath, 'utf-8');
     
-    // Find the filters array with id "form"
-    const formFilter = formJson.filters.find(filter => filter.id === 'form');
+    // Find the filters section with regex
+    const filtersRegex = /"filters":\s*\[\s*\{\s*"id":\s*"form",\s*"components":\s*\[([^\]]*)\]/;
+    const match = formJsonContent.match(filtersRegex);
     
-    if (formFilter && formFilter.components) {
+    if (match) {
+      // Parse the current components array
+      const componentsString = match[1];
+      const currentComponents = componentsString
+        .split(',')
+        .map(comp => comp.trim().replace(/['"]/g, ''))
+        .filter(comp => comp.length > 0);
+      
       // Check if component already exists
-      if (!formFilter.components.includes(componentName)) {
-        // Add component and sort alphabetically
-        formFilter.components.push(componentName);
+      if (!currentComponents.includes(componentName)) {
+        // Add component to the array
+        currentComponents.push(componentName);
+        
+        // Create new components string (keep original formatting)
+        const newComponentsString = currentComponents
+          .map(comp => `\n        "${comp}"`)
+          .join(',');
+        
+        // Replace only the components array
+        const newFiltersSection = `"filters": [
+    {
+      "id": "form",
+      "components": [${newComponentsString}
+      ]`;
+        
+        formJsonContent = formJsonContent.replace(
+          /"filters":\s*\[\s*\{\s*"id":\s*"form",\s*"components":\s*\[([^\]]*)\]/,
+          newFiltersSection
+        );
         
         // Write back to file
-        writeFileSync(formJsonPath, JSON.stringify(formJson, null, 2));
+        writeFileSync(formJsonPath, formJsonContent);
         
         logSuccess(`Updated _form.json to include '${componentName}' in form filters`);
         return true;
@@ -310,7 +334,7 @@ function updateFormJson(componentName) {
         return true;
       }
     } else {
-      logWarning('Could not find form filter in _form.json');
+      logWarning('Could not find form filters section in _form.json');
       return false;
     }
   } catch (error) {
