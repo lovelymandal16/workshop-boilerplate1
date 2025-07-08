@@ -195,7 +195,7 @@ export default async function decorate(fieldDiv, fieldJson) {
       ...baseJson,
       definitions: baseJson.definitions.map((def) => ({
         ...def,
-        title: componentName.charAt(0).toUpperCase() + componentName.slice(1),
+        title: componentName.charAt(0).toUpperCase() + componentName.slice(1).replace(/-/g, ' '),
         id: componentName,
         plugins: {
           ...def.plugins,
