@@ -20,10 +20,10 @@ describe('Forms Scaffolder - Repository Structure', () => {
       expect(fs.lstatSync(modelsDir).isDirectory()).to.be.true;
     });
 
-    it('should have blocks/form/custom-components directory', () => {
-      const customDir = path.join(__dirname, '../../blocks/form/custom-components');
-      expect(fs.existsSync(customDir)).to.be.true;
-      expect(fs.lstatSync(customDir).isDirectory()).to.be.true;
+    it('should have blocks/form/components directory', () => {
+      const componentsDir = path.join(__dirname, '../../blocks/form/components');
+      expect(fs.existsSync(componentsDir)).to.be.true;
+      expect(fs.lstatSync(componentsDir).isDirectory()).to.be.true;
     });
 
     it('should have blocks/form/mappings.js file', () => {
@@ -48,6 +48,12 @@ describe('Forms Scaffolder - Repository Structure', () => {
       const scaffolderFile = path.join(__dirname, '../../tools/forms-scaffolder.js');
       expect(fs.existsSync(scaffolderFile)).to.be.true;
       expect(fs.lstatSync(scaffolderFile).isFile()).to.be.true;
+    });
+
+    it('should have models/_component-definition.json file', () => {
+      const componentDefFile = path.join(__dirname, '../../models/_component-definition.json');
+      expect(fs.existsSync(componentDefFile)).to.be.true;
+      expect(fs.lstatSync(componentDefFile).isFile()).to.be.true;
     });
   });
 
@@ -94,6 +100,26 @@ describe('Forms Scaffolder - Repository Structure', () => {
       expect(formFilter).to.exist;
       expect(formFilter.components).to.be.an('array');
       expect(formFilter.components.length).to.be.greaterThan(0);
+    });
+  });
+
+  describe('_component-definition.json Structure', () => {
+    let componentDef;
+
+    before(() => {
+      const componentDefPath = path.join(__dirname, '../../models/_component-definition.json');
+      const content = fs.readFileSync(componentDefPath, 'utf-8');
+      componentDef = JSON.parse(content);
+    });
+
+    it('should have groups array with custom-components group', () => {
+      expect(componentDef.groups).to.be.an('array');
+      expect(componentDef.groups.length).to.be.greaterThan(0);
+      
+      const customGroup = componentDef.groups.find(g => g.id === 'custom-components');
+      expect(customGroup).to.exist;
+      expect(customGroup.title).to.equal('Custom Form Components');
+      expect(customGroup.components).to.be.an('array');
     });
   });
 });

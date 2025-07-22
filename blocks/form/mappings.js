@@ -16,48 +16,46 @@ export function getCustomComponents() {
 }
 
 /**
- * Higher-Order Function that creates a component loader for a specific folder path
- * @param folderPath - The folder path relative to /blocks/form/ (e.g., 'custom-components')
- * @returns {Function} A component loader function
+ * Loads a component from the components directory
+ * @param {string} componentName - The name of the component to load
+ * @param {HTMLElement} element - The DOM element to decorate
+ * @param {Object} fd - The form definition object
+ * @param {HTMLElement} container - The container element
+ * @param {string} formId - The form ID
+ * @returns {Promise<HTMLElement>} The decorated element
  */
-function createComponentLoader(folderPath) {
-  return async function loadFromPath(componentName, element, fd, container, formId) {
-    const status = element.dataset.componentStatus;
-    if (status !== 'loading' && status !== 'loaded') {
-      element.dataset.componentStatus = 'loading';
-      const { blockName } = element.dataset;
-      try {
-        loadCSS(`${window.hlx.codeBasePath}/blocks/form/${folderPath}/${componentName}/${componentName}.css`);
-        const decorationComplete = new Promise((resolve) => {
-          (async () => {
-            try {
-              const mod = await import(
-                `${window.hlx.codeBasePath}/blocks/form/${folderPath}/${componentName}/${componentName}.js`
-              );
-              if (mod.default) {
-                await mod.default(element, fd, container, formId);
-              }
-            } catch (error) {
-              // eslint-disable-next-line no-console
-              console.log(`failed to load component for ${blockName}`, error);
+async function loadComponent(componentName, element, fd, container, formId) {
+  const status = element.dataset.componentStatus;
+  if (status !== 'loading' && status !== 'loaded') {
+    element.dataset.componentStatus = 'loading';
+    const { blockName } = element.dataset;
+    try {
+      loadCSS(`${window.hlx.codeBasePath}/blocks/form/components/${componentName}/${componentName}.css`);
+      const decorationComplete = new Promise((resolve) => {
+        (async () => {
+          try {
+            const mod = await import(
+              `${window.hlx.codeBasePath}/blocks/form/components/${componentName}/${componentName}.js`
+            );
+            if (mod.default) {
+              await mod.default(element, fd, container, formId);
             }
-            resolve();
-          })();
-        });
-        await Promise.all([decorationComplete]);
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(`failed to load component ${blockName}`, error);
-      }
-      element.dataset.componentStatus = 'loaded';
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.log(`failed to load component for ${blockName}`, error);
+          }
+          resolve();
+        })();
+      });
+      await Promise.all([decorationComplete]);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(`failed to load component ${blockName}`, error);
     }
-    return element;
-  };
+    element.dataset.componentStatus = 'loaded';
+  }
+  return element;
 }
-
-// Create specific loaders using the HOF
-const loadComponent = createComponentLoader('components');
-const loadCustomComponent = createComponentLoader('custom-components');
 
 /**
  * returns a decorator to decorate the field definition
@@ -73,9 +71,7 @@ export default async function componentDecorator(element, fd, container, formId)
     await loadComponent('wizard', element, fd, container, formId);
   }
 
-  if (getCustomComponents().includes(type)) {
-    await loadCustomComponent(type, element, fd, container, formId);
-  } else if (getOOTBComponents().includes(type)) {
+  if (getCustomComponents().includes(type) || getOOTBComponents().includes(type)) {
     await loadComponent(type, element, fd, container, formId);
   }
 
