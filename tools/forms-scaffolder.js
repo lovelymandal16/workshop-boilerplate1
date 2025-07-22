@@ -378,6 +378,16 @@ function updateComponentDefinition(componentName) {
 async function scaffoldComponent() {
   console.clear();
 
+  // ASCII Art Banner - Ocean theme colors
+  console.log(colorize(`
+  █████╗  ███████╗ ███╗   ███╗     ███████╗  ██████╗  ██████╗  ███╗   ███╗ ███████╗
+ ██╔══██╗ ██╔════╝ ████╗ ████║     ██╔════╝ ██╔═══██╗ ██╔══██╗ ████╗ ████║ ██╔════╝
+ ███████║ █████╗   ██╔████╔██║     █████╗   ██║   ██║ ██████╔╝ ██╔████╔██║ ███████╗
+ ██╔══██║ ██╔══╝   ██║╚██╔╝██║     ██╔══╝   ██║   ██║ ██╔══██╗ ██║╚██╔╝██║ ╚════██║
+ ██║  ██║ ███████╗ ██║ ╚═╝ ██║     ██║      ╚██████╔╝ ██║  ██║ ██║ ╚═╝ ██║ ███████║
+ ╚═╝  ╚═╝ ╚══════╝ ╚═╝     ╚═╝     ╚═╝       ╚═════╝  ╚═╝  ╚═╝ ╚═╝     ╚═╝ ╚══════╝
+  `, colors.cyan + colors.bright));
+
   // Welcome message
   logTitle('AEM Forms Custom Component Scaffolding Tool');
   log(`${emojis.magic}  This tool will help you set up all the necessary files to create a new custom component.\n`, colors.green);
