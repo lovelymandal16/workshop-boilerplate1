@@ -95,7 +95,7 @@ function getBaseComponents() {
 
 // Check if component directory already exists
 function checkComponentExists(componentName) {
-  const targetDir = path.join(__dirname, '../blocks/form/custom-components', componentName);
+  const targetDir = path.join(__dirname, '../blocks/form/components', componentName);
   return existsSync(targetDir);
 }
 
@@ -168,27 +168,27 @@ export default async function decorate(fieldDiv, fieldJson) {
     const baseComponentPath = path.join(__dirname, '../blocks/form/models/form-components', baseComponent.filename);
     const baseJson = JSON.parse(readFileSync(baseComponentPath, 'utf-8'));
 
-    // Function to transform relative paths for custom components
-    const transformPaths = (obj) => {
-      if (Array.isArray(obj)) {
-        return obj.map(transformPaths);
-      }
-      if (obj && typeof obj === 'object') {
-        const transformed = {};
-        for (const [key, value] of Object.entries(obj)) {
-          if (key === '...' && typeof value === 'string') {
-            // Transform relative paths from base components to custom components
-            // From: ../form-common/file.json (base component path)
-            // To: ../../models/form-common/file.json (custom component path)
-            transformed[key] = value.replace(/^\.\.\/form-common\//, '../../models/form-common/');
-          } else {
-            transformed[key] = transformPaths(value);
+            // Function to transform relative paths for components
+        const transformPaths = (obj) => {
+          if (Array.isArray(obj)) {
+            return obj.map(transformPaths);
           }
-        }
-        return transformed;
-      }
-      return obj;
-    };
+          if (obj && typeof obj === 'object') {
+            const transformed = {};
+            for (const [key, value] of Object.entries(obj)) {
+              if (key === '...' && typeof value === 'string') {
+                // Transform relative paths from base components to components directory
+                // From: ../form-common/file.json (base component path)
+                // To: ../../models/form-common/file.json (component path)
+                transformed[key] = value.replace(/^\.\.\/form-common\//, '../../models/form-common/');
+              } else {
+                transformed[key] = transformPaths(value);
+              }
+            }
+            return transformed;
+          }
+          return obj;
+        };
 
     // Modify the base component configuration
     const customJson = {
@@ -329,6 +329,51 @@ function updateFormJson(componentName) {
   }
 }
 
+// Update _component-definition.json to include the new custom component
+function updateComponentDefinition(componentName) {
+  const componentDefPath = path.join(__dirname, '../models/_component-definition.json');
+  
+  try {
+    // Read current component definition
+    const componentDef = JSON.parse(readFileSync(componentDefPath, 'utf-8'));
+    
+    // Find the custom components group
+    const customGroup = componentDef.groups.find(group => group.id === 'custom-components');
+    
+    if (customGroup) {
+      // Create the new component entry
+      const newComponentEntry = {
+        "...": `../blocks/form/components/${componentName}/_${componentName}.json#/definitions`
+      };
+      
+      // Check if this component path already exists to avoid duplicates
+      const existingEntry = customGroup.components.find(comp => 
+        comp["..."] === newComponentEntry["..."]
+      );
+      
+      if (!existingEntry) {
+        // Append the new component to the existing array
+        customGroup.components.push(newComponentEntry);
+        
+        // Write back to file with proper formatting
+        writeFileSync(componentDefPath, JSON.stringify(componentDef, null, 2));
+        
+        logSuccess(`Added '${componentName}' to _component-definition.json`);
+        return true;
+      } else {
+        log(`Component '${componentName}' already exists in _component-definition.json`, colors.dim);
+        return true;
+      }
+    } else {
+      logWarning('Could not find custom-components group in _component-definition.json');
+      return false;
+    }
+  } catch (error) {
+    logWarning(`Could not update _component-definition.json: ${error.message}`);
+    return false;
+  }
+}
+
 // Main scaffolding function
 async function scaffoldComponent() {
   console.clear();
@@ -398,7 +443,7 @@ async function scaffoldComponent() {
     const creationSpinner = createSpinner('Creating component structure...');
 
     // Create directory structure
-    const targetDir = path.join(__dirname, '../blocks/form/custom-components', componentName);
+    const targetDir = path.join(__dirname, '../blocks/form/components', componentName);
 
     if (checkComponentExists(componentName)) {
       creationSpinner.stop('❌ Component creation failed');
@@ -412,6 +457,11 @@ async function scaffoldComponent() {
     const files = createComponentFiles(componentName, baseComponent, targetDir);
     creationSpinner.stop('✅ Component files created successfully');
 
+    // Update _component-definition.json to include the new custom component
+    const componentDefSpinner = createSpinner('Updating component definitions...');
+    updateComponentDefinition(componentName);
+    componentDefSpinner.stop('✅ Custom component definition updated successfully');
+
     // Update mappings.js to include the new custom component
     const mappingSpinner = createSpinner('Updating mappings.js...');
     updateMappings();
@@ -420,13 +470,13 @@ async function scaffoldComponent() {
     // Update _form.json to include the new component in filters
     const formSpinner = createSpinner('Updating _form.json...');
     updateFormJson(componentName);
-    formSpinner.stop('✅ Form configuration updated successfully');
+    formSpinner.stop('✅ Form filters configuration updated successfully');
 
     // Success message
     logSuccess(`Successfully created custom component '${componentName}'!`);
     log(`\n${emojis.folder} File structure created:`, colors.cyan);
     log('blocks/form/', colors.dim);
-    log('└── custom-components/', colors.dim);
+    log('└── components/', colors.dim);
     log(`    └── ${componentName}/`, colors.dim);
     log(`        ├── ${files.js}`, colors.dim);
     log(`        ├── ${files.css}`, colors.dim);

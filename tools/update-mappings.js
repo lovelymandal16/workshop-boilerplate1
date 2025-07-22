@@ -20,7 +20,7 @@ function getComponentsFromDirectory(dirPath) {
 }
 
 // Validate component names for illegal characters
-function validateComponentNames(components, type) {
+function validateComponentNames(components) {
   const invalidComponents = components.filter(name => {
     // Check for spaces or illegal file characters
     // Allow only letters, numbers, hyphens, and underscores
@@ -29,7 +29,7 @@ function validateComponentNames(components, type) {
   
   if (invalidComponents.length > 0) {
     console.error('🚨 INVALID COMPONENT NAMES DETECTED!');
-    console.error(`❌ ${type} components contain illegal characters:`);
+    console.error(`❌ Components contain illegal characters:`);
     invalidComponents.forEach(name => {
       console.error(`   • "${name}" - contains spaces or invalid characters`);
     });
@@ -45,6 +45,29 @@ function validateComponentNames(components, type) {
   return true;
 }
 
+// Read the current OOTB components from mappings.js
+function getOOTBComponentsFromMappings(mappingsPath) {
+  try {
+    const mappingsContent = readFileSync(mappingsPath, 'utf-8');
+    const match = mappingsContent.match(/const OOTBComponentDecorators = \[([^\]]*)\];/);
+    
+    if (match) {
+      const arrayContent = match[1];
+      // Extract component names from the array string
+      const components = arrayContent
+        .split(',')
+        .map(item => item.trim().replace(/['"]/g, ''))
+        .filter(item => item.length > 0);
+      return components;
+    }
+    
+    return [];
+  } catch (error) {
+    console.error('❌ Error reading OOTB components from mappings.js:', error.message);
+    return [];
+  }
+}
+
 // Update mappings.js with current component directories
 function updateMappings() {
   const mappingsPath = path.join(__dirname, '../blocks/form/mappings.js');
@@ -53,35 +76,29 @@ function updateMappings() {
     // Read current mappings.js
     const mappingsContent = readFileSync(mappingsPath, 'utf-8');
     
-    // Get current components from directories
-    const customComponentsPath = path.join(__dirname, '../blocks/form/custom-components');
-    const ootbComponentsPath = path.join(__dirname, '../blocks/form/components');
-    
-    const customComponents = getComponentsFromDirectory(customComponentsPath);
-    const ootbComponents = getComponentsFromDirectory(ootbComponentsPath);
+    // Get current components from the single components directory
+    const componentsPath = path.join(__dirname, '../blocks/form/components');
+    const allComponents = getComponentsFromDirectory(componentsPath);
     
     // Validate component names before processing
-    if (!validateComponentNames(customComponents, 'Custom')) {
+    if (!validateComponentNames(allComponents)) {
       return false;
     }
     
-    if (!validateComponentNames(ootbComponents, 'OOTB')) {
-      return false;
-    }
+    // Get OOTB components from the existing mappings.js file
+    const ootbComponents = getOOTBComponentsFromMappings(mappingsPath);
     
-    // Create new arrays
+    // Calculate custom components by subtracting OOTB from all components
+    const customComponents = allComponents.filter(comp => !ootbComponents.includes(comp));
+    
+    // Create new custom components array
     const customArrayString = customComponents.map(comp => `'${comp}'`).join(', ');
-    const ootbArrayString = ootbComponents.map(comp => `'${comp}'`).join(', ');
     
-    // Replace the arrays in mappings.js
+    // Replace only the custom components array in mappings.js
     let updatedContent = mappingsContent
       .replace(
         /let customComponents = \[([^\]]*)\];/,
         `let customComponents = [${customArrayString}];`
-      )
-      .replace(
-        /const OOTBComponentDecorators = \[([^\]]*)\];/,
-        `const OOTBComponentDecorators = [${ootbArrayString}];`
       );
     
     // Write back to file
@@ -89,7 +106,6 @@ function updateMappings() {
     
     console.log('✅ Updated mappings.js:');
     console.log(`   Custom components (${customComponents.length}): [${customArrayString}]`);
-    console.log(`   OOTB components (${ootbComponents.length}): [${ootbArrayString}]`);
     
     return true;
   } catch (error) {

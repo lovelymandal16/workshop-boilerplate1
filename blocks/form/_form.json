@@ -169,9 +169,6 @@
     },
     {
       "...": "./components/*/_*.json#/models"
-    },
-    {
-      "...": "./custom-components/*/_*.json#/models"
     }
   ],
   "filters": [
