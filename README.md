@@ -46,7 +46,7 @@ npm run lint
 Create custom form components using the interactive scaffolder:
 
 ```sh
-npm run custom-component
+npm run create:custom-component
 ```
 
 This will guide you through creating a new custom component with:
