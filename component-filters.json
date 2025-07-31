@@ -69,7 +69,8 @@
       "tnc",
       "wizard",
       "range",
-      "number-rating"
+      "number-rating",
+      "card-choice"
     ]
   }
 ]
