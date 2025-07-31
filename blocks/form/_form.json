@@ -82,6 +82,13 @@
               "value" : ""
           },
           {
+            "component": "text",
+            "name": "customFunctionsPath",
+            "label": "Custom Functions Path",
+            "valueType": "string",
+            "value": "/blocks/form/functions.js"
+          },
+          {
               "component": "boolean",
               "name": "enableRestEndpointPost",
               "label": "Enable POST request",
