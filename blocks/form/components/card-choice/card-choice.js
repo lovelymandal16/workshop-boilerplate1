@@ -4,7 +4,12 @@ import { subscribe } from '../../rules/index.js';
 function createCard(element, enums) {
   element.querySelectorAll('.radio-wrapper').forEach((radioWrapper, index) => {
     if (enums[index]?.name) {
-      radioWrapper.querySelector('label').textContent = enums[index]?.name;
+      let label = radioWrapper.querySelector('label');
+      if (!label) {
+        label = document.createElement('label');
+        radioWrapper.appendChild(label);
+      }
+      label.textContent = enums[index]?.name;
     }
     radioWrapper.querySelector('input').dataset.index = index;
     const image = createOptimizedPicture(enums[index].image || 'https://main--afb--jalagari.hlx.page/lab/images/card.png', 'card-image');
