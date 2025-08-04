@@ -27,10 +27,7 @@ function createCard(element, enums) {
 }
 
 export default function decorate(element, fieldJson, container, formId) {
-<<<<<<< HEAD
-=======
   createCard(element, fieldJson.enumNames.map((e) => ({ ...e, benefits: 'benefits1,benefits2' })));
->>>>>>> a76ae25fe4254562039b9a587cad83c2117e221d
   element.classList.add('card');
   subscribe(element, formId, (fieldDiv, fieldModel) => {
     fieldModel.subscribe((e) => {
